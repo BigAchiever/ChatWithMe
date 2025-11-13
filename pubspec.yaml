@@ -1,0 +1,30 @@
+name: ai_voice_chat
+description: AI voice + text chat app (Whisper + GPT + TTS)
+publish_to: "none"
+version: 1.0.0+1
+
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.5
+  dio: ^5.4.0
+  flutter_chat_ui: ^1.6.9
+  flutter_chat_types: ^3.4.0
+  record: ^4.4.4
+  just_audio: ^0.9.36
+  vad: 
+  path_provider: ^2.0.14
+  uuid: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
