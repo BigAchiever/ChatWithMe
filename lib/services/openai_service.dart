@@ -8,7 +8,7 @@ class OpenAIService {
   final String apiKey;
   final Dio _dio = Dio();
 
-  OpenAIService(this.apiKey) {
+  OpenAIService(this.apiKey, Set<dynamic> set) {
     _dio.options.headers['Authorization'] = 'Bearer $apiKey';
     _dio.options.headers['Accept'] = 'application/json';
   }

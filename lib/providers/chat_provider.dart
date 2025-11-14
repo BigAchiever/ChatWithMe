@@ -17,7 +17,7 @@ class ChatProvider extends ChangeNotifier {
   final RealtimeVoiceService realtime = RealtimeVoiceService();
 
   // OpenAI service
-  final OpenAIService _openaiService = OpenAIService(OPENAI_API_KEY);
+  final OpenAIService _openaiService = OpenAIService(OPENAI_API_KEY, {});
 
   // Google Sheet service
   final GoogleSheetService sheetService = GoogleSheetService(
@@ -56,7 +56,7 @@ class ChatProvider extends ChangeNotifier {
 
     // Assistant streaming callbacks
     realtime.onAssistantPartial = (partial) {
-      // Append partial text 
+      // Append partial text
       if (partial.trim().isEmpty) return;
       _currentAssistantResponse =
           '$_currentAssistantResponse ${partial.trim()}'.trim();
@@ -112,11 +112,9 @@ class ChatProvider extends ChangeNotifier {
     if (transcript.trim().isEmpty) return;
     _insertUserMessage(transcript);
     _currentTranscript = '';
-    isAISpeaking = true; 
+    isAISpeaking = true;
     notifyListeners();
   }
-
-  
 
   // Load Google Sheets data
   Future<void> _loadSheetData() async {
@@ -258,7 +256,6 @@ Keep responses concise but informative.''';
 
   // ===========================================================================
   // REALTIME VOICE MODE (WebRTC)
-  
 
   Future<void> startVoiceMode() async {
     if (voiceMode) return;
