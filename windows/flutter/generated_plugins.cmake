@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_inappwebview_windows
+  flutter_webrtc
   record_windows
   url_launcher_windows
 )

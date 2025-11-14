@@ -132,81 +132,127 @@ class _ChatScreenState extends State<ChatScreen>
           isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F5F5),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+        toolbarHeight: 72,
+        backgroundColor: isDark ? const Color(0xFF0E0E0F) : Colors.white,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey.withOpacity(0.15),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
         title: Row(
           children: [
+            // Avatar / AI Icon Card
             Container(
-              width: 40,
-              height: 40,
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
                 gradient: const LinearGradient(
                   colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF667EEA).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: const Color(0xFF764BA2).withOpacity(0.35),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child:
-                  const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                  const Icon(Icons.auto_awesome, color: Colors.white, size: 26),
             ),
-            const SizedBox(width: 12),
-            const Column(
+
+            const SizedBox(width: 14),
+
+            // Title + Subtitle block
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'AI Voice Chat',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                Row(
+                  children: [
+                    const Text(
+                      "AI Voice Assistant",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    // Real-time listening indicator (only visible in voice mode)
+                    if (chat.voiceMode)
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.redAccent.withOpacity(0.6),
+                              blurRadius: 10,
+                              spreadRadius: 1.5,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
-                Text(
-                  'Always here to help',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.normal),
+                const SizedBox(height: 3),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    (chat.sheetRowCount > 0
+                            ? "${chat.sheetRowCount} employees loaded"
+                            : "Ready to assist"),
+                    key: ValueKey(chat.voiceMode ? "voice" : "text"),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.grey[400] : Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ],
             ),
           ],
         ),
         actions: [
-          // Voice Mode Toggle
+          //voice mode toggle button
           AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.symmetric(horizontal: 8),
+            duration: const Duration(milliseconds: 200),
+            margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
               color: chat.voiceMode
-                  ? const Color(0xFF667EEA).withOpacity(0.1)
+                  ? const Color(0xFF667EEA).withOpacity(0.15)
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: chat.voiceMode
                     ? const Color(0xFF667EEA)
-                    : Colors.grey.withOpacity(0.3),
-                width: 1.5,
+                    : Colors.grey.withOpacity(0.25),
+                width: 1.4,
               ),
             ),
             child: IconButton(
               icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(scale: animation, child: child);
-                },
+                duration: const Duration(milliseconds: 250),
                 child: Icon(
                   chat.voiceMode ? Icons.hearing : Icons.mic_none,
                   key: ValueKey(chat.voiceMode),
                   color: chat.voiceMode
                       ? const Color(0xFF667EEA)
-                      : Colors.grey[600],
+                      : Colors.grey[700],
+                  size: 26,
                 ),
               ),
-              tooltip: chat.voiceMode ? 'Stop voice mode' : 'Start voice mode',
               onPressed: () async {
                 if (chat.voiceMode) {
                   await chat.stopVoiceMode();
@@ -216,27 +262,33 @@ class _ChatScreenState extends State<ChatScreen>
               },
             ),
           ),
-          // Clear Chat Button
-          IconButton(
-            icon: Icon(Icons.delete_outline, color: Colors.grey[600]),
-            tooltip: 'Clear chat',
-            onPressed: () => _showClearConfirmation(chat),
+
+          // Clear 
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(Icons.delete_forever_outlined, size: 26),
+              color: Colors.grey[700],
+              tooltip: 'Clear chat',
+              onPressed: () => _showClearConfirmation(chat),
+            ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Status Banner (if voice mode is active)
+            // Status Banner
             if (chat.voiceMode)
               Container(
                 width: double.infinity,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                  gradient: LinearGradient(
+                    colors: chat.isAISpeaking
+                        ? [const Color(0xFF764BA2), const Color(0xFF667EEA)]
+                        : [const Color(0xFF667EEA), const Color(0xFF764BA2)],
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -248,34 +300,98 @@ class _ChatScreenState extends State<ChatScreen>
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white.withOpacity(0.5),
-                            blurRadius: 8,
-                            spreadRadius: 2,
+                    //  indicator
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 800),
+                      builder: (context, value, child) {
+                        return Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(value * 0.8),
+                                blurRadius: value * 16,
+                                spreadRadius: value * 4,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
+                      onEnd: () {
+                        // Restart animation 
+                        if (mounted && chat.voiceMode) {
+                          setState(() {});
+                        }
+                      },
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Voice mode active - Listening...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        chat.isAISpeaking
+                            ? '🔊 AI is speaking...'
+                            : '🎤 Listening...',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (chat.currentTranscript.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Transcribing...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+            // Partial transcript display
+            if (chat.voiceMode && chat.currentTranscript.isNotEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                color: isDark
+                    ? const Color(0xFF1A1A1A).withOpacity(0.5)
+                    : Colors.grey[100],
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.mic,
+                      size: 16,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        chat.currentTranscript,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-            // Chat Messages
+            //  Messages
             Expanded(
               child: chat.messages.isEmpty
                   ? Center(
@@ -317,6 +433,40 @@ class _ChatScreenState extends State<ChatScreen>
                               color: Colors.grey[600],
                             ),
                           ),
+                          if (chat.sheetRowCount > 0) ...[
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF667EEA).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color:
+                                      const Color(0xFF667EEA).withOpacity(0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.table_chart,
+                                    size: 16,
+                                    color: Color(0xFF667EEA),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${chat.sheetRowCount} rows loaded from Sheets',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF667EEA),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     )
@@ -329,9 +479,10 @@ class _ChatScreenState extends State<ChatScreen>
                       child: Chat(
                         messages: chat.messages,
                         onPreviewDataFetched: (_, __) {},
-                        onSendPressed: (partialText) {
-                          chat.sendText(partialText.text);
-                        },
+
+                        // disable the built-in input
+                        onSendPressed: (_) {},
+                        inputOptions: InputOptions(enabled: false),
                         user: chat.user,
                         theme: DefaultChatTheme(
                           backgroundColor: isDark
@@ -359,11 +510,12 @@ class _ChatScreenState extends State<ChatScreen>
                         ),
                         showUserAvatars: true,
                         showUserNames: false,
+                        
                       ),
                     ),
             ),
 
-            // Input Bar Container
+            // Input Bar 
             Container(
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
